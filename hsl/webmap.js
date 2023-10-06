@@ -1,49 +1,49 @@
 const L = require("leaflet");
-const http = require('http');
+const socket = new WebSocket('ws://localhost:3030'); // Replace with the actual WebSocket server URL
 
-const options = {
-  hostname: 'localhost', // Replace with the hostname of the server you want to connect to
-  port: 3030, // The default HTTP port is 80
-  path: '/', // The path to the specific resource you want to access
-  method: 'GET', // The HTTP method (GET, POST, etc.)
-};
+socket.addEventListener('open', (event) => {
+  console.log('Connected to the WebSocket server');
+});
 
-const req = http.request(options, (res) => {
-  let data = '';
+const markers = {}; // Store markers using vehicle numbers as keys
 
-  // Handle incoming data
-  res.on('data', (chunk) => {
-    data += chunk;
-  });
-
-  // Handle the response
-  res.on('end', () => {
+socket.addEventListener('message', (event) => {
+    const data = JSON.parse(event.data);
     const vpData = JSON.parse(data).VP;
-    console.log("Route Number (desi):", vpData.desi);
-    console.log("Route Direction (dir):", vpData.dir);
-    console.log("Operator ID (oper):", vpData.oper);
-    console.log("Vehicle Number (veh):", vpData.veh);
-    console.log("Timestamp (tst):", vpData.tst);
-    console.log("Unix Timestamp (tsi):", vpData.tsi);
-    console.log("Speed (spd):", vpData.spd);
-    console.log("Heading (hdg):", vpData.hdg);
-    console.log("Latitude (lat):", vpData.lat);
-    console.log("Longitude (long):", vpData.long);
-  
-    // Create a Leaflet circle marker and add it to the map
-    const circleMarker = L.circleMarker([vpData.lat, vpData.long]).addTo(map);
-    circleMarker.bindPopup(`Route: ${vpData.desi}, Speed: ${vpData.spd}`);
-    console.log('Response:', data);
-  });
+
+    try {
+        // Check if a marker for this vehicle number already exists
+        if (markers[vpData.veh]) {
+            // Check if the marker is within the current map bounds
+            if (map.getBounds().contains([vpData.lat, vpData.long])) {
+                // Update the existing marker's position
+                markers[vpData.veh].setLatLng([vpData.lat, vpData.long]);
+            } else {
+                // Marker is outside the viewport, remove it from the map
+                map.removeLayer(markers[vpData.veh]);
+                delete markers[vpData.veh];
+            }
+        } else {
+            // Check if the marker is within the current map bounds
+            if (map.getBounds().contains([vpData.lat, vpData.long])) {
+                // Create a new marker and add it to the map
+                const circleMarker = L.circleMarker([vpData.lat, vpData.long], {
+                    radius: 5, // Adjust the radius to your desired size
+                }).addTo(map);
+                circleMarker.bindPopup(`Route: ${vpData.desi}, Speed: ${vpData.spd}`);
+                markers[vpData.veh] = circleMarker; // Store the marker using the vehicle number as the key
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
 });
 
-// Handle request errors
-req.on('error', (error) => {
-  console.error('Error:', error);
-});
 
-// Send the request
-req.end();
+
+socket.addEventListener('close', (event) => {
+  console.log('Connection closed');
+});
 
 // Creates a Leaflet map bound to an HTML <div> with id "map"
 var map = L.map("map").setView([60.1699, 24.9384], 13);

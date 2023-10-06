@@ -4,13 +4,15 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mqtt = require("mqtt");
 const client = mqtt.connect("mqtts://mqtt.hsl.fi:8883/");
-const socketIo = require("socket.io");
-const http = require("http");
+const WebSocket = require('ws');
+const http = require('http');
 
-const server = http.createServer(app);
-const io = socketIo(server);
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('WebSocket Server Running');
+  });
 
-const port = process.env.PORT || 3030;
+const wss = new WebSocket.Server({ server });
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -29,34 +31,39 @@ app.use('/users', usersRouter);
 client.on("connect", () => {
     client.subscribe("/hfp/v2/journey/#", (err) => {
         if (!err) {
-           
+
         }
+    });
+});
+
+function broadcastData(data) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+}
+
+
+// Handle WebSocket connections
+wss.on('connection', (ws) => {
+    console.log('A client connected');
+
+    // Handle client disconnection
+    ws.on('close', () => {
+        console.log('A client disconnected');
     });
 });
 
 client.on("message", (topic, message) => {
     // message is Buffer, convert it to a string
     const messageString = message.toString();
-    try {
-        const vpData = JSON.parse(messageString).VP;
-
-        io.emit("data-update", messageString);
-    } catch (error) {
-        console.error("Ei tietoa.");
-        console.log('-------------------------------');
-    }
+    broadcastData(messageString);
 });
 
-
-io.on("connection", (socket) => {
-    console.log("A client connected");
-    socket.on("disconnect", () => {
-        console.log("A client disconnected");
-    });
-});
-
+const port = process.env.PORT || 3030;
 server.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
+  console.log(`WebSocket server are running on port ${port}`);
+});
 
 module.exports = app;
