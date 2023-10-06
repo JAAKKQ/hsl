@@ -1,1 +1,1 @@
-![preview](bus.png)
+![preview](https://github.com/JAAKKQ/hsl/blob/main/media/bus.png)
