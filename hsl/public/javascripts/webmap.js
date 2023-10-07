@@ -41841,10 +41841,9 @@ module.exports={
 
 
 },{}],192:[function(require,module,exports){
-(function (process){(function (){
 const L = require("leaflet");
 require('dotenv').config();
-const socket = new WebSocket(process.env.WS_URL); // Connect to a WS server to get position data.
+const socket = new WebSocket('ws://192.168.10.6:3030'); // Connect to a WS server to get position data.
 
 socket.addEventListener('open', (event) => {
     console.log('Connected to the WebSocket server');
@@ -41981,5 +41980,4 @@ L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
 }).addTo(map);
 
 
-}).call(this)}).call(this,require('_process'))
-},{"_process":151,"dotenv":189,"leaflet":191}]},{},[192]);
+},{"dotenv":189,"leaflet":191}]},{},[192]);
