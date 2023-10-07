@@ -80,7 +80,7 @@ async function getStops(latlon) {
             'Content-Type': 'application/graphql',
             'digitransit-subscription-key': process.env.API_KEY,
         },
-        body: `{ stopsByRadius(lat:${latlon.lat}, lon:${latlon.lng}, radius:10000) { edges { node { stop { gtfsId name lat lon } distance } } } }`, // Convert the query to a JSON string
+        body: `{ stopsByRadius(lat:${latlon.lat}, lon:${latlon.lng}, radius:5000) { edges { node { stop { gtfsId name lat lon } distance } } } }`, // Convert the query to a JSON string
     };
 
     // Make the GraphQL query using fetch and return the result
