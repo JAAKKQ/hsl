@@ -28,14 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-client.on("connect", () => {
-    client.subscribe("/hfp/v2/journey/#", (err) => {
-        if (!err) {
-
-        }
-    });
-});
-
 function broadcastData(data) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -44,14 +36,11 @@ function broadcastData(data) {
     });
 }
 
+client.on("connect", () => {
+    client.subscribe("/hfp/v2/journey/#", (err) => {
+        if (!err) {
 
-// Handle WebSocket connections
-wss.on('connection', (ws) => {
-    console.log('A client connected');
-
-    // Handle client disconnection
-    ws.on('close', () => {
-        console.log('A client disconnected');
+        }
     });
 });
 
