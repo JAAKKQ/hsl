@@ -8,8 +8,7 @@ html, body, #map {
 }
 
 .text-label {
-  color: white;
+  color: black;
   text-align: center;
   pointer-events: none;
-  opacity: 0.3;
 }

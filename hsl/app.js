@@ -100,7 +100,7 @@ async function getStops(latlon) {
 }
 
 
-const port = process.env.PORT || 3030;
+const port = process.env.WS_PORT || 3030;
 server.listen(port, () => {
     console.log(`WebSocket server are running on port ${port}`);
 });
