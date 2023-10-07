@@ -1,6 +1,6 @@
 const L = require("leaflet");
 require('dotenv').config();
-const socket = new WebSocket('ws://192.168.10.6:3030'); // Connect to a WS server to get position data.
+const socket = new WebSocket('ws://localhost:3030'); // Connect to a WS server to get position data.
 
 socket.addEventListener('open', (event) => {
     console.log('Connected to the WebSocket server');
@@ -130,7 +130,7 @@ socket.addEventListener('close', (event) => {
 });
 
 // Adds the basemap tiles to your web map
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://carto.com/attribution/">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 21,

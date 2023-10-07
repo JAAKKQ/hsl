@@ -41973,7 +41973,7 @@ socket.addEventListener('close', (event) => {
 });
 
 // Adds the basemap tiles to your web map
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://carto.com/attribution/">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 21,
