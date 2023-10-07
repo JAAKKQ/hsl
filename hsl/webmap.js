@@ -1,6 +1,6 @@
 const L = require("leaflet");
 require('dotenv').config();
-const socket = new WebSocket(process.env.WS_URL); // Connect to a WS server to get position data.
+const socket = new WebSocket('ws://192.168.101.107'); // Connect to a WS server to get position data.
 
 socket.addEventListener('open', (event) => {
     console.log('Connected to the WebSocket server');
