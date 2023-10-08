@@ -5,15 +5,22 @@ var logger = require('morgan');
 const mqtt = require("mqtt");
 const client = mqtt.connect("mqtts://mqtt.hsl.fi:8883/");
 const WebSocket = require('ws');
-const http = require('http');
+const https = require('https');
 require('dotenv').config();
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('WebSocket Server Running');
-});
+const privateKey = fs.readFileSync('path/to/your/privateKey.key', 'utf8');
+const certificate = fs.readFileSync('path/to/your/certificate.crt', 'utf8');
+const ca = fs.readFileSync('path/to/your/CA.crt', 'utf8');
 
-const wss = new WebSocket.Server({ server });
+const credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca, // Include this line only if you have a CA bundle
+};
+
+const httpsServer = https.createServer(credentials, app);
+
+const wss = new WebSocket.Server({ server: httpsServer });
 
 var app = express();
 
@@ -28,7 +35,7 @@ wss.on('connection', async (ws) => {
 
     ws.on('message', async (message) => {
         try {
-            const requestData = JSON.parse(message); // Use a different variable name
+            const requestData = JSON.parse(message);
             switch (requestData.type) {
                 case "getStops":
                     const stops = await getStops(requestData.latlon);
@@ -39,8 +46,8 @@ wss.on('connection', async (ws) => {
             console.error('Error processing message:', error);
         }
     });
-    
-    
+
+
 
     // Handle client disconnection
     ws.on('close', () => {
@@ -62,7 +69,7 @@ client.on("message", (topic, message) => {
 function broadcastData(type, data) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({type: type, data: data}));
+            client.send(JSON.stringify({ type: type, data: data }));
         }
     });
 }
@@ -95,8 +102,8 @@ async function getStops(latlon) {
 
 
 const port = process.env.WS_PORT || 3030;
-server.listen(port, () => {
-    console.log(`WebSocket server are running on port ${port}`);
+httpsServer.listen(port, () => {
+  console.log(`WebSocket server is running on port ${port}`);
 });
 
 module.exports = app;
